@@ -1,16 +1,22 @@
+#!/usr/bin/python3
+
 from bs4 import BeautifulSoup
+import json
 import urllib.request
 import re
 
+from config import urls
 
 coo_matcher = re.compile(r'maps.here.com\/\?map=(\-?\d{1,2}\.\d*),(\-?\d{1,3}\.\d*),\d.*')
+
 
 #
 # Basic Coster content store
 #
-class NewCoster:
-    lat = 0
-    lng = 0
+class Coaster:
+    id = 0
+    lat = 0.
+    lng = 0.
     name = ''
     owner = ''
     city = ''
@@ -22,15 +28,28 @@ class NewCoster:
     drive_type = ''
     manufacturer = ''
 
+    def __init__(self, id):
+        super().__init__()
+        self.id = id
+
+    def toGeoJSON(self):
+        return json.dumps(
+            {'type': 'Feature',
+             'geometry': {'type': 'Point', 'coordinates': (float(self.lng), float(self.lat))},
+             'properties': self.__dict__ })
+
+
+def item_url_builder(id: int) -> str:
+    return f"{urls['coasters']['base']}/{id}.htm"
+
 
 #
 # parse for coster from rcdb
 #
-def parse_coster(url) -> NewCoster:
-
-    with urllib.request.urlopen(url) as main:
+def parse_coster(id) -> Coaster:
+    with urllib.request.urlopen(item_url_builder(id)) as main:
         soup = BeautifulSoup(main, 'html.parser')
-        coster = NewCoster()
+        coster = Coaster(id)
 
         # extract lat & lng
         if len(soup.find_all(href=coo_matcher)) > 0:

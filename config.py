@@ -3,7 +3,8 @@
 urls = {
     "coasters": {
         "index": "https://rcdb.com/r.htm?ot=2",
-        "page": "https://rcdb.com/r.htm?ot=2&page="
+        "page": "https://rcdb.com/r.htm?ot=2&page=",
+        "base": "https://rcdb.com"
     }
 }
 gist = {

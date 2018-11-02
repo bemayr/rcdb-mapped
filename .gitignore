@@ -106,3 +106,4 @@ venv.bak/
 
 # --- CUSTOM ADDITIONS ---
 GIST_TOKEN
+.idea
