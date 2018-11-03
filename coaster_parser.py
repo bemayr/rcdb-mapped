@@ -49,36 +49,51 @@ def item_url_builder(id: int) -> str:
 def parse_coster(id) -> Coaster:
     with urllib.request.urlopen(item_url_builder(id)) as main:
         soup = BeautifulSoup(main, 'html.parser')
-        coster = Coaster(id)
+
+        # try to find Parks which is not a coaster
+        if soup.find(id='feature').select('span.link_row')[0].getText().count('Parks nearby') > 0:
+            return None
+
+        coaster = Coaster(id)
 
         # extract lat & lng
         if len(soup.find_all(href=coo_matcher)) > 0:
             coor = coo_matcher.search(soup.find_all(href=coo_matcher).pop().get('href'))
-            coster.lat = coor.group(1)
-            coster.lng = coor.group(2)
+            coaster.lat = coor.group(1)
+            coaster.lng = coor.group(2)
 
         main_info = soup.find(id='feature')
         content = main_info.find_all('a')
 
         # set main info
-        coster.name = main_info.find('h1').text
-        coster.owner = content[0].text
-        coster.city = content[1].text
-        coster.region = content[2].text
-        coster.country = content[3].text
+        coaster.name = main_info.find('h1').text
+        # try to find Amusement parks which are no coasters
+        if coaster.name.count('Amusement') > 0:
+            return None
+
+        coaster.owner = content[0].text
+        coaster.city = content[1].text
+        coaster.region = content[2].text
+        coaster.country = content[3].text
 
         # TODO extract status
 
         content = main_info.find('span').find_all('a')
-
         # set additional info
-        coster.type = content[0].text
-        coster.main_material = content[1].text
-        coster.drive_type = content[2].text
+        coaster.type = content[0].text
+        coaster.main_material = content[1].text
+        coaster.drive_type = content[2].text
 
-        content = main_info.select('div.scroll')[1].find_all('a')
+        content = main_info.select('div.scroll')
+        if len(content) > 1:
+            content = content[1].find_all('a')
+            # set manufacturer
+            coaster.manufacturer = content[0].text
 
-        # set manufacturer
-        coster.manufacturer = content[0].text
+        return coaster
+
+
+def extract_coasters(ids: []) -> dict:
+    return {'type': 'FeatureCollection', 'features': list(filter(lambda x: x is not None, [parse_coaster(i) for i in ids]))}
 
         return coster
