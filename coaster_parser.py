@@ -7,7 +7,7 @@ import re
 
 from config import urls
 
-coo_matcher = re.compile(r'maps.here.com\/\?map=(\-?\d{1,2}\.\d*),(\-?\d{1,3}\.\d*),\d.*')
+coo_matcher = re.compile(r'maps.here.com\/\?map=(-?\d{1,2}\.\d*),(-?\d{1,3}\.\d*),\d.*')
 
 
 #
@@ -46,7 +46,7 @@ def item_url_builder(id: int) -> str:
 #
 # parse for coster from rcdb
 #
-def parse_coster(id) -> Coaster:
+def parse_coaster(id) -> Coaster:
     with urllib.request.urlopen(item_url_builder(id)) as main:
         soup = BeautifulSoup(main, 'html.parser')
 
