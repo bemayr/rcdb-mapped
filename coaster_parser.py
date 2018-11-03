@@ -32,11 +32,21 @@ class Coaster:
         super().__init__()
         self.id = id
 
-    def toGeoJSON(self):
-        return json.dumps(
-            {'type': 'Feature',
-             'geometry': {'type': 'Point', 'coordinates': (float(self.lng), float(self.lat))},
-             'properties': self.__dict__ })
+    def __str__(self):
+        return json.dumps(self.to_json(), cls=CoasterEncoder)
+
+    def to_json(self):
+        return {'type': 'Feature',
+                'geometry': {'type': 'Point', 'coordinates': (float(self.lng), float(self.lat))},
+                'properties': self.__dict__ }
+
+
+#
+# Helper to Convert Coaster to JSON
+#
+class CoasterEncoder(json.JSONEncoder):
+    def default(self, o: Coaster):
+        return o.to_json()
 
 
 def item_url_builder(id: int) -> str:
@@ -96,4 +106,10 @@ def parse_coaster(id) -> Coaster:
 def extract_coasters(ids: []) -> dict:
     return {'type': 'FeatureCollection', 'features': list(filter(lambda x: x is not None, [parse_coaster(i) for i in ids]))}
 
-        return coster
+
+if __name__ == "__main__":
+    # bad: 5537
+    # good: 1823, 3111
+    tmp = parse_coaster(3111)
+    print(json.dumps(tmp, cls=CoasterEncoder, indent=4))
+    print(tmp)
