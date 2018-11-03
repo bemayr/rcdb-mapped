@@ -36,12 +36,19 @@ def update_gist(coasters):
 def create_gist_response_message(response) -> str:
     return f'Yay, the coasters have been updated successfully! ({response.url})' if response.ok else f'Oh noooo, something unexpected happened: {response.status_code}, {response.reason}'
 
-# main
-print("Counting all the coasters...")
-max_page_number = get_max_page_number()
-coaster_ids = get_coaster_ids(max_page_number)
-print("Riding all the coasters to get the necessary information...")
-coasters = coaster_ids # replace with David's code
-print("Storing the data in the cloud")
-response = update_gist(coasters)
-print(create_gist_response_message(response))
+
+def main():
+    print("Counting all the coasters...")
+    max_page_number = get_max_page_number()
+    coaster_ids = get_coaster_ids(max_page_number)
+    print("Riding all the coasters to get the necessary information...")
+    coasters = extract_coasters(coaster_ids)  # replace with David's code
+    # coasters to JSON via `json.dumps(coasters, cls=CoasterEncoder)`
+    # or via `print(coaster)`
+    print("Storing the data in the cloud")
+    response = update_gist(coasters)
+    print(create_gist_response_message(response))
+
+
+if __name__ == "__main__":
+    main()
