@@ -36,7 +36,7 @@
     
     function loadOSM() {
       return L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors | All pages Copyright &copy Duane Marden. <a href="https://rcdb.com">rcdb</a>'
       });
     }
     
@@ -44,9 +44,28 @@
       return L.esri.basemapLayer(type);
     }
 
+    var langMap = {name: "Name", owner: "Owner", city: "City", region: "Region", 
+                   country: "Country", type: "Type", main_material: "Material", 
+                   drive_type: "Drive-Type", manufacturer: "Manufacturer"}
+
+    function propsToView(props) {
+      let html = "<dl>";
+      for (let key in props) {
+        let t = ''; let d = '';
+        if (key === "lat" || key === "lng" || props[key] === "") continue;
+	if (key === "id") {
+          t = "Source"; d = "<a href='https://rcdb.com/" + props[key] + ".htm'> goto rcdb </a>";
+	} else {
+          t = langMap[key]; d = props[key];
+        }
+        html += "<dt><strong>" + t + "</strong></dt><dd>" + d + "</dd>";
+      }
+      html += "</dl>";
+      return html;
+    }
+
     function addTooltip(feature, layer) {
-      // TODO add more info
-      layer.bindPopup(feature.properties.id);
+      layer.bindPopup(propsToView(feature.properties));
     }
 
     function loadCoasterData() {
