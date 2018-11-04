@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import json
 import urllib.request
 import re
+import sys
 
 from config import urls
 
@@ -61,7 +62,11 @@ def parse_coaster(id) -> Coaster:
         soup = BeautifulSoup(main, 'html.parser')
 
         # try to find Parks which is not a coaster
-        if soup.find(id='feature').select('span.link_row')[0].getText().count('Parks nearby') > 0:
+        if len(soup.find(id='feature').select('span.link_row')) == 0 or \
+                soup.find(id='feature').select('span.link_row')[0].getText().count('Parks nearby') > 0:
+            return None
+        dummy = soup.find(id='article').find('h3')
+        if dummy and dummy.get_text().count('Roller Coasters') > 0:
             return None
 
         coaster = Coaster(id)
@@ -78,7 +83,8 @@ def parse_coaster(id) -> Coaster:
         # set main info
         coaster.name = main_info.find('h1').text
         # try to find Amusement parks which are no coasters
-        if coaster.name.count('Amusement') > 0:
+        if coaster.name.count('Amusement') > 0 or \
+                coaster.name.count('Children Park') > 0:
             return None
 
         coaster.owner = content[0].text
@@ -103,13 +109,24 @@ def parse_coaster(id) -> Coaster:
         return coaster
 
 
+def run_with_status(id: str, func, current: int, max: int):
+    i = int((current / max) * 100)
+    sys.stdout.write('\r')
+    # the exact output you're looking for:
+    sys.stdout.write("%d -> %d [%-50s] %d%% | id: %s" % (current, max, '=' * int(i / 2), i, id))
+    sys.stdout.flush()
+    return func(id)
+
+
 def extract_coasters(ids: []) -> dict:
-    return {'type': 'FeatureCollection', 'features': list(filter(lambda x: x is not None, [parse_coaster(i) for i in ids]))}
+    return {'type': 'FeatureCollection', 'features':
+        list(filter(lambda x: x is not None, [run_with_status(i, parse_coaster, idx+1, len(ids))
+                                              for idx, i in enumerate(ids)]))}
 
 
 if __name__ == "__main__":
-    # bad: 5537
-    # good: 1823, 3111
-    tmp = parse_coaster(3111)
+    # bad: 5537, 5610,
+    # good: 1823, 3111, 12984,
+    tmp = parse_coaster(12984)
     print(json.dumps(tmp, cls=CoasterEncoder, indent=4))
     print(tmp)
