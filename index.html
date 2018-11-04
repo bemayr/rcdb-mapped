@@ -51,6 +51,11 @@
         return JSON.parse(myJson);
       });
     }
+    
+    function addTooltip(feature, layer) {
+      // TODO add more info
+      layer.bindPopup(feature.properties.id);
+    }
 
     var baseMaps = {
       'OSM': loadOSM(),
@@ -65,7 +70,9 @@
     L.control.layers(baseMaps).addTo(rcdbmap);
 
     var markers = L.markerClusterGroup();
-    markers.addLayer(L.geoJSON(loadCoasterData()));
+    markers.addLayer(L.geoJSON(loadCoasterData(), {
+      onEachFeature: addTooltip
+    }));
     rcdbmap.addLayer(markers);
     
   </script>
