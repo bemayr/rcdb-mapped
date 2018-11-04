@@ -31,6 +31,8 @@
   <div id="rcdbmap"></div>
   
   <script type="text/javascript">
+
+    var markers = L.markerClusterGroup();
     
     function loadOSM() {
       return L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -42,19 +44,27 @@
       return L.esri.basemapLayer(type);
     }
 
-    function loadCoasterData() {
-      fetch('https://gist.githubusercontent.com/bemayr/6cea555f0723b1438b4a9aff14cc912b/raw/coasters.json', {method: 'GET'})
-      .then(function(response) {
-        return atob(response.text());
-      })
-      .then(function(myJson) {
-        return JSON.parse(myJson);
-      });
-    }
-    
     function addTooltip(feature, layer) {
       // TODO add more info
       layer.bindPopup(feature.properties.id);
+    }
+
+    function loadCoasterData() {
+      fetch('https://gist.githubusercontent.com/bemayr/6cea555f0723b1438b4a9aff14cc912b/raw/coasters.json', {method: 'GET'})
+      .then(function(response) {
+        return response.text();
+      })
+      .then(function(blob) {
+        return atob(blob);
+      })
+      .then(function(myJson) {
+        markers.addLayer(L.geoJSON(JSON.parse(myJson), {
+          onEachFeature: addTooltip
+        }));
+      })
+      .catch(function(err) {
+	console.log(err);
+      });
     }
 
     var baseMaps = {
@@ -68,11 +78,8 @@
     var rcdbmap = L.map('rcdbmap', {center: [20, 0], zoom: 2, layers: [baseMaps['OSM']]});
     
     L.control.layers(baseMaps).addTo(rcdbmap);
+    loadCoasterData();
 
-    var markers = L.markerClusterGroup();
-    markers.addLayer(L.geoJSON(loadCoasterData(), {
-      onEachFeature: addTooltip
-    }));
     rcdbmap.addLayer(markers);
     
   </script>
