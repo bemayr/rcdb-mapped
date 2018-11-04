@@ -43,7 +43,7 @@
     }
 
     function loadCoasterData() {
-      fetch('https://gist.githubusercontent.com/bemayr/6cea555f0723b1438b4a9aff14cc912b/raw/c06d47efe09bf6f1afb9e70193f65a536093b24f/coasters.json', {method: 'GET'})
+      fetch('https://gist.githubusercontent.com/bemayr/6cea555f0723b1438b4a9aff14cc912b/raw/coasters.json', {method: 'GET'})
       .then(function(response) {
         return atob(response.text());
       })
