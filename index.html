@@ -54,7 +54,7 @@
         let t = ''; let d = '';
         if (key === "lat" || key === "lng" || props[key] === "") continue;
 	if (key === "id") {
-          t = "Source"; d = "<a target="_blank" rel="noopener noreferrer" href='https://rcdb.com/" + props[key] + ".htm'> goto rcdb </a>";
+          t = "Source"; d = "<a target='_blank' rel='noopener noreferrer' href='https://rcdb.com/" + props[key] + ".htm'> goto rcdb </a>";
 	} else {
           t = langMap[key]; d = props[key];
         }
